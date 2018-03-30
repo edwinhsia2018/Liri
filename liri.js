@@ -1,40 +1,113 @@
 require("dotenv").config();
-
-var keys = require("keys.js")
+var request = require("request");
+var fs = require("fs");
+var inquirer = require("inquirer");
+var keys = require("keys.js");
+var Twitter = require("twitter");
+var Spotify = require('spotify');
 
 var spotify = new Spotify(keys.spotify);
-var client = new Twitter(keys.twitter);
+var twitter = new Twitter(keys.twitter);
 
-var action = process.argv[2];
+// var action = process.argv[2];
+var search = process.argv;
+
+var selection = "";
+
+console.log("Welcome to Liri, the better version of Siri only with fewer functions");
+
+inquirer
+    .prompt([
+        {
+            type: "input",
+            message: "What are you trying to get Liri to do?",
+            choices: ["my-tweets", "spotify-this-song", "movie-this", "do-what-it-say"],
+            name: "choice"
+        }
+    ]).then(function (responses) {
+        selection = responses.choice;
 
 
-switch (action) {
-case "my-tweets":
-    tweets();
-    break;
-case "spotify-this-song":
-    spotify();
-    break;
-case "movie-this":
-    movie();
-    break;
-case "do-what-it-say":
-    doItNow ();
-    break;
-}
+        switch (selection) {
+            case "my-tweets":
+                tweets();
+                break;
+            case "spotify-this-song":
+                spotify();
+                break;
+            case "movie-this":
+                movie();
+                break;
+            case "do-what-it-say":
+                doItNow();
+                break;
+        }
 
-function tweets() {
+        function tweets() {
+            for (i = 2; i < search.length; i++) {
+                search = search + " " + search[i];
+            }
+            console.log();
+            output = "";
+            fs.appendFile("log.txt", output, function (err) {
+                if (err) {
+                    console.log(err);
+                }
+            })
+        }
 
-}
+        function spotify() {
+            for (i = 3; i < search.length; i++) {
+                search = search + " " + search[i];
+            }
+            spotify.search({ type: 'track', query: search }, function (err, data) {
+                if (err) {
+                    console.log('Error occurred: ' + err);
+                    return;
+                }
+                console.log(data);
+            });
+            // Artist(s)
+            // The song's name
+            // A preview link of the song from Spotify
+            // The album that the song is from
+            console.log();
+            output = "";
+            fs.appendFile("log.txt", output, function (err) {
+                if (err) {
+                    console.log(err);
+                }
+            })
+        }
 
-function spotify() {
+        function movie() {
+            for (i = 3; i < search.length; i++) {
+                search = search + " " + search[i];
+            }
+            var queryUrl = "http://www.omdbapi.com/?t=" + search + "&y=&plot=short&apikey=trilogy";
+            request(queryUrl, function (err, response, body) {
+                if (!err && (response.statusCode == 200)) {
+                    console.log(JSON.parse(body).Title);
+                    console.log(JSON.parse(body).Year);
+                    console.log(JSON.parse(body).imdbRating);
+                    console.log(JSON.parse(body).Ratings[2]);
+                    console.log(JSON.parse(body).Country);
+                    console.log(JSON.parse(body).Language);
+                    console.log(JSON.parse(body).Plot);
+                    console.log(JSON.parse(body).Actors);
+                }
+            })
+        }
 
-}
+        function doItNow() {
+            fs.readFile("random.txt", function (err, data) {
 
-function movie () {
-
-}
-
-function doItNow() {
-    
-}
+            })
+            output = "";
+            fs.appendFile("log.txt", output, function (err) {
+                if (err) {
+                    console.log(err);
+                }
+            })
+        }
+    })
