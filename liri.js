@@ -2,9 +2,9 @@ require("dotenv").config();
 var request = require("request");
 var fs = require("fs");
 var inquirer = require("inquirer");
-var keys = require("keys.js");
+var keys = require("./keys.js");
 var Twitter = require("twitter");
-var Spotify = require('spotify');
+var Spotify = require('node-spotify-api');
 
 var spotify = new Spotify(keys.spotify);
 var twitter = new Twitter(keys.twitter);
@@ -16,17 +16,16 @@ var selection = "";
 
 console.log("Welcome to Liri, the better version of Siri only with fewer functions");
 
-inquirer
-    .prompt([
-        {
-            type: "input",
-            message: "What are you trying to get Liri to do?",
-            choices: ["my-tweets", "spotify-this-song", "movie-this", "do-what-it-say"],
-            name: "choice"
-        }
-    ]).then(function (responses) {
-        selection = responses.choice;
-
+// inquirer
+//     .prompt([
+//         {
+//             type: "list",
+//             message: "What are you trying to get Liri to do?",
+//             choices: ["my-tweets", "spotify-this-song", "movie-this", "do-what-it-say"],
+//             name: "choice"
+//         }
+//     ]).then(function (responses) {
+//         selection = responses.choice;
 
         switch (selection) {
             case "my-tweets":
@@ -48,8 +47,10 @@ inquirer
                 search = search + " " + search[i];
             }
             console.log();
-            output = "";
-            fs.appendFile("log.txt", output, function (err) {
+            client.get(path, params, callback);
+
+            //Logging command
+            fs.appendFile("log.txt", selection, function (err) {
                 if (err) {
                     console.log(err);
                 }
@@ -60,20 +61,21 @@ inquirer
             for (i = 3; i < search.length; i++) {
                 search = search + " " + search[i];
             }
-            spotify.search({ type: 'track', query: search }, function (err, data) {
+            spotify.search({ type: 'track', query: 'All the Small Things' }, function(err, data) {
                 if (err) {
-                    console.log('Error occurred: ' + err);
-                    return;
+                  return console.log('Error occurred: ' + err);
                 }
-                console.log(data);
-            });
+               
+              console.log(data); 
+              });
             // Artist(s)
             // The song's name
             // A preview link of the song from Spotify
             // The album that the song is from
+               
+            //Logging command
             console.log();
-            output = "";
-            fs.appendFile("log.txt", output, function (err) {
+            fs.appendFile("log.txt", selection, function (err) {
                 if (err) {
                     console.log(err);
                 }
@@ -97,17 +99,25 @@ inquirer
                     console.log(JSON.parse(body).Actors);
                 }
             })
+               
+            //Logging command
+            fs.appendFile("log.txt", selection, function (err) {
+                if (err) {
+                    console.log(err);
+                }
+            })
         }
 
         function doItNow() {
             fs.readFile("random.txt", function (err, data) {
 
             })
-            output = "";
-            fs.appendFile("log.txt", output, function (err) {
+               
+            //Logging command
+            fs.appendFile("log.txt", selection, function (err) {
                 if (err) {
                     console.log(err);
                 }
             })
         }
-    })
+    // })
