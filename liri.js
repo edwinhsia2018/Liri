@@ -11,8 +11,8 @@ var twitter = new Twitter(keys.twitter);
 
 // var action = process.argv[2];
 var search = process.argv;
-
-var selection = "";
+var selection = process.argv[2];
+// var searchName = "";
 
 console.log("Welcome to Liri, the better version of Siri only with fewer functions");
 
@@ -23,6 +23,11 @@ console.log("Welcome to Liri, the better version of Siri only with fewer functio
 //             message: "What are you trying to get Liri to do?",
 //             choices: ["my-tweets", "spotify-this-song", "movie-this", "do-what-it-say"],
 //             name: "choice"
+//         },
+//         {
+//             type: "input",
+//             message: "What would you like to search for?",
+//             name: "searchName"
 //         }
 //     ]).then(function (responses) {
 //         selection = responses.choice;
@@ -83,20 +88,26 @@ console.log("Welcome to Liri, the better version of Siri only with fewer functio
         }
 
         function movie() {
-            for (i = 3; i < search.length; i++) {
-                search = search + " " + search[i];
-            }
-            var queryUrl = "http://www.omdbapi.com/?t=" + search + "&y=&plot=short&apikey=trilogy";
+            var movieName = "";
+            for (var i = 3; i < search.length; i++) {
+                if (i > 3 && i < search.length) {
+                  movieName = movieName + "+" + search[i];
+                }
+                else {
+                  movieName += search[i];
+                }
+              }
+            var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=trilogy";
             request(queryUrl, function (err, response, body) {
-                if (!err && (response.statusCode == 200)) {
-                    console.log(JSON.parse(body).Title);
-                    console.log(JSON.parse(body).Year);
-                    console.log(JSON.parse(body).imdbRating);
-                    console.log(JSON.parse(body).Ratings[2]);
-                    console.log(JSON.parse(body).Country);
-                    console.log(JSON.parse(body).Language);
-                    console.log(JSON.parse(body).Plot);
-                    console.log(JSON.parse(body).Actors);
+                if (!err && response.statusCode === 200) {
+                    console.log("Title: " + JSON.parse(body).Title);
+                    console.log("Release Year: " + JSON.parse(body).Year);
+                    console.log("imdb Rating: " + JSON.parse(body).imdbRating);
+                    console.log("Rotten Tomatoes Rating: " + JSON.parse(body).Ratings[1].Value);
+                    console.log("Country: " + JSON.parse(body).Country);
+                    console.log("Language: " + JSON.parse(body).Language);
+                    console.log("Plot: " + JSON.parse(body).Plot);
+                    console.log("Actors: " + JSON.parse(body).Actors);
                 }
             })
                
