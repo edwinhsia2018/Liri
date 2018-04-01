@@ -1,7 +1,6 @@
 require("dotenv").config();
 var request = require("request");
 var fs = require("fs");
-var inquirer = require("inquirer");
 var keys = require("./keys.js");
 var Twitter = require("twitter");
 var Spotify = require('node-spotify-api');
@@ -16,28 +15,12 @@ var selection = process.argv[2];
 
 console.log("Welcome to Liri, the better version of Siri only with fewer functions");
 
-// inquirer
-//     .prompt([
-//         {
-//             type: "list",
-//             message: "What are you trying to get Liri to do?",
-//             choices: ["my-tweets", "spotify-this-song", "movie-this", "do-what-it-say"],
-//             name: "choice"
-//         },
-//         {
-//             type: "input",
-//             message: "What would you like to search for?",
-//             name: "searchName"
-//         }
-//     ]).then(function (responses) {
-//         selection = responses.choice;
-
         switch (selection) {
             case "my-tweets":
-                tweets();
+                tweeter();
                 break;
             case "spotify-this-song":
-                spotify();
+                spotifyThis();
                 break;
             case "movie-this":
                 movie();
@@ -47,31 +30,44 @@ console.log("Welcome to Liri, the better version of Siri only with fewer functio
                 break;
         }
 
-        function tweets() {
-            for (i = 2; i < search.length; i++) {
-                search = search + " " + search[i];
+        function tweeter() {
+            var twitterUser = process.argv[3];
+            if (!twitterUser){
+                twitterUser = "edwinhsia";
             }
-            console.log();
-            client.get(path, params, callback);
+            params = {screen_name: twitterUser};
+            twitter.get("statuses/user_timeline/", params, function(error, tweets, response){
+                if (!error){
+                    for(var i = 0; i < tweets.length; i++) {
+                        var twitterResults = "@" + tweets[i].user.screen_name + ": " + tweets[i].text + "\r\n" + tweets[i].created_at + "\r\n";
+                        console.log(twitterResults);
+                    }
+                }
+            });
 
             //Logging command
-            fs.appendFile("log.txt", selection, function (err) {
+            fs.appendFile("log.txt", selection + "\n", function (err) {
                 if (err) {
                     console.log(err);
                 }
             })
         }
 
-        function spotify() {
+        function spotifyThis() {
             for (i = 3; i < search.length; i++) {
                 search = search + " " + search[i];
             }
-            spotify.search({ type: 'track', query: 'All the Small Things' }, function(err, data) {
+            if (!search){
+                search = "The Sign";
+            }
+            params = search;
+            spotify.search({ type: "track", query: params }, function(err, data) {
                 if (err) {
                   return console.log('Error occurred: ' + err);
                 }
-               
-              console.log(data); 
+                else {
+                    console.log(data);
+                }
               });
             // Artist(s)
             // The song's name
@@ -80,7 +76,7 @@ console.log("Welcome to Liri, the better version of Siri only with fewer functio
                
             //Logging command
             console.log();
-            fs.appendFile("log.txt", selection, function (err) {
+            fs.appendFile("log.txt", selection + "\n", function (err) {
                 if (err) {
                     console.log(err);
                 }
@@ -112,7 +108,7 @@ console.log("Welcome to Liri, the better version of Siri only with fewer functio
             })
                
             //Logging command
-            fs.appendFile("log.txt", selection, function (err) {
+            fs.appendFile("log.txt", selection + "\n", function (err) {
                 if (err) {
                     console.log(err);
                 }
@@ -121,14 +117,19 @@ console.log("Welcome to Liri, the better version of Siri only with fewer functio
 
         function doItNow() {
             fs.readFile("random.txt", function (err, data) {
-
+                if (!err) {
+                    doItNowResults = data.split(",");
+                    spotify(doItNowResults[0], doItNowResults[1]);
+                }
+                else{
+                    console.log(err);
+                }
             })
                
             //Logging command
-            fs.appendFile("log.txt", selection, function (err) {
+            fs.appendFile("log.txt", selection+"\n", function (err) {
                 if (err) {
                     console.log(err);
                 }
             })
         }
-    // })
