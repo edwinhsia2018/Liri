@@ -8,10 +8,8 @@ var Spotify = require('node-spotify-api');
 var spotify = new Spotify(keys.spotify);
 var twitter = new Twitter(keys.twitter);
 
-// var action = process.argv[2];
 var search = process.argv;
 var selection = process.argv[2];
-// var searchName = "";
 
 console.log("Welcome to Liri, the better version of Siri only with fewer functions");
 
@@ -25,7 +23,7 @@ console.log("Welcome to Liri, the better version of Siri only with fewer functio
             case "movie-this":
                 movie();
                 break;
-            case "do-what-it-say":
+            case "do-what-it-says":
                 doItNow();
                 break;
         }
@@ -61,19 +59,19 @@ console.log("Welcome to Liri, the better version of Siri only with fewer functio
                 search = "The Sign";
             }
             params = search;
-            spotify.search({ type: "track", query: params }, function(err, data) {
+            spotify.search({ type: "track", query: "The Sign" }, function(err, data) {
                 if (err) {
                   return console.log('Error occurred: ' + err);
                 }
                 else {
-                    console.log(data);
+                    var songInfo = data.tracks.items;
+                    console.log("Artist: " + JSON.parse(songInfo.artists));
+                    console.log("Song: " + JSON.parse(songInfo.name));
+                    console.log("Preview Link: " + JSON.parse(songInfo.preview_url));
+                    console.log("Album that the song is from: " + JSON.parse(songInfo.album.name));
                 }
-              });
-            // Artist(s)
-            // The song's name
-            // A preview link of the song from Spotify
-            // The album that the song is from
-               
+            });
+        
             //Logging command
             console.log();
             fs.appendFile("log.txt", selection + "\n", function (err) {
@@ -116,10 +114,10 @@ console.log("Welcome to Liri, the better version of Siri only with fewer functio
         }
 
         function doItNow() {
-            fs.readFile("random.txt", function (err, data) {
+            fs.readFile("random.txt", "utf8", function (err, data) {
                 if (!err) {
                     doItNowResults = data.split(",");
-                    spotify(doItNowResults[0], doItNowResults[1]);
+                    spotifyThis(doItNowResults[0], doItNowResults[1]);
                 }
                 else{
                     console.log(err);
