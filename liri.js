@@ -6,7 +6,7 @@ var Twitter = require("twitter");
 var Spotify = require('node-spotify-api');
 
 var spotify = new Spotify(keys.spotify);
-var twitter = new Twitter(keys.twitter);
+var client = new Twitter(keys.twitter);
 
 var search = process.argv;
 var selection = process.argv[2];
@@ -34,7 +34,7 @@ console.log("Welcome to Liri, the better version of Siri only with fewer functio
                 twitterUser = "edwinhsia";
             }
             params = {screen_name: twitterUser};
-            twitter.get("statuses/user_timeline/", params, function(error, tweets, response){
+            client.get("statuses/user_timeline/", params, function(error, tweets, response){
                 if (!error){
                     for(var i = 0; i < tweets.length; i++) {
                         var twitterResults = "@" + tweets[i].user.screen_name + ": " + tweets[i].text + "\r\n" + tweets[i].created_at + "\r\n";
@@ -52,23 +52,33 @@ console.log("Welcome to Liri, the better version of Siri only with fewer functio
         }
 
         function spotifyThis() {
-            for (i = 3; i < search.length; i++) {
-                search = search + " " + search[i];
+            if (!process.argv[3]) {
+                songName = "Ace The Sign";
             }
-            if (!search){
-                search = "The Sign";
+            else {
+                var songName = "";
+                for (var i = 3; i < search.length; i++) {
+                    if (i > 3 && i < search.length) {
+                        songName = songName + "+" + search[i];
+                    }
+                    else {
+                        songName += search[i];
+                    }
+                }
             }
-            params = search;
-            spotify.search({ type: "track", query: "The Sign" }, function(err, data) {
+            spotify.search({ type: "track", query: songName }, function(err, data) {
                 if (err) {
                   return console.log('Error occurred: ' + err);
                 }
                 else {
-                    var songInfo = data.tracks.items;
-                    console.log("Artist: " + JSON.parse(songInfo.artists));
-                    console.log("Song: " + JSON.parse(songInfo.name));
-                    console.log("Preview Link: " + JSON.parse(songInfo.preview_url));
-                    console.log("Album that the song is from: " + JSON.parse(songInfo.album.name));
+                    for (var i = 0; i < 5; i++) {
+                        var songInfo = data.tracks.items;
+                        console.log("Artist: " + songInfo[i].artists[0].name);
+                        console.log("Song: " + songInfo[i].name);
+                        console.log("Preview Link: " + songInfo[i].preview_url);
+                        console.log("Album that the song is from: " + songInfo[i].album.name);
+                        console.log("------------" + i + "------------");
+                    }
                 }
             });
         
@@ -125,7 +135,7 @@ console.log("Welcome to Liri, the better version of Siri only with fewer functio
             })
                
             //Logging command
-            fs.appendFile("log.txt", selection+"\n", function (err) {
+            fs.appendFile("log.txt", selection + "\n", function (err) {
                 if (err) {
                     console.log(err);
                 }
